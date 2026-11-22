@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Report Breakdown</title>
+<style>
+  :root {
+    --bg: #f3f5f8; --paper: #ffffff; --ink: #182230; --muted: #667085;
+    --line: #e5e9f0; --navy: #14263d; --blue: #315b88;
+    --green: #16845b; --green-bg: #e9f7f0;
+    --amber: #a96708; --amber-bg: #fff5df;
+    --red: #b42332; --red-bg: #fff0f1;
+    --shadow: 0 14px 36px rgba(20,38,61,.08);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  .wrap { max-width: 1050px; margin: 0 auto; padding: 34px 22px 60px; }
+  .hero { background: linear-gradient(135deg, #14263d, #274b70); color: white; border-radius: 22px; padding: 34px; box-shadow: var(--shadow); }
+  .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 800; opacity: .75; }
+  h1 { margin: 8px 0 8px; font-size: clamp(29px, 5vw, 42px); line-height: 1.12; letter-spacing: -.04em; }
+  .hero p { color: #d9e5f1; margin: 0; max-width: 700px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+  .meta span { border: 1px solid #ffffff35; background: #ffffff12; padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+  .section { margin-top: 30px; }
+  h2 { margin: 0 0 14px; font-size: 22px; letter-spacing: -.025em; }
+  h3 { margin: 0; font-size: 17px; }
+  .muted { color: var(--muted); }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+  .metric, .card { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 5px 18px rgba(20,38,61,.035); }
+  .metric { padding: 18px; }
+  .metric .label { color: var(--muted); font-size: 12px; font-weight: 700; }
+  .metric .value { font-size: 27px; font-weight: 800; letter-spacing: -.04em; margin-top: 5px; }
+  .metric .note { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .card { padding: 21px; margin-bottom: 14px; }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+  .tag { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 800; }
+  .good { color: var(--green); background: var(--green-bg); }
+  .warn { color: var(--amber); background: var(--amber-bg); }
+  .bad { color: var(--red); background: var(--red-bg); }
+  .balance { font-size: 30px; font-weight: 850; letter-spacing: -.04em; margin: 2px 0 0; }
+  .sub { color: var(--muted); font-size: 12px; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 20px; margin-top: 16px; }
+  .fact { border-top: 1px solid var(--line); padding-top: 9px; }
+  .fact .k { color: var(--muted); font-size: 11px; }
+  .fact .v { font-weight: 700; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 11px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  tr:last-child td { border-bottom: 0; }
+  .timeline td:last-child { font-weight: 750; }
+  .callout { border-left: 4px solid var(--blue); background: #edf4fb; padding: 14px 16px; border-radius: 10px; margin-top: 14px; color: #29445f; font-size: 13px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  ul { padding-left: 19px; margin: 8px 0 0; }
+  li { margin: 6px 0; }
+  .checklist li::marker { color: var(--green); }
+  .footer { margin-top: 28px; padding: 18px 4px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+  .print { display: inline-block; border: 0; border-radius: 999px; padding: 10px 16px; margin-top: 20px; background: white; color: var(--navy); font-weight: 800; cursor: pointer; }
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .facts { grid-template-columns: repeat(2, 1fr); }
+    .two { grid-template-columns: 1fr; }
+    .hero { padding: 25px; }
+    .wrap { padding: 18px 13px 40px; }
+    .card { padding: 17px; }
+  }
+  @media (max-width: 420px) { .grid { grid-template-columns: 1fr 1fr; gap: 8px; } .metric { padding: 13px; } .metric .value { font-size: 22px; } }
+  @media print {
+    body { background: white; }
+    .wrap { max-width: none; padding: 0; }
+    .hero, .card, .metric { box-shadow: none; break-inside: avoid; }
+    .print { display: none; }
+    .section { margin-top: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Personal finance • Credit file review</div>
+    <h1>Credit Report Breakdown</h1>
+    <p>A plain-English review of the accounts, outstanding balances, late-payment history, and items worth checking.</p>
+    <div class="meta">
+      <span>Report date: November 21, 2026</span>
+      <span>Bureau data: TransUnion</span>
+      <span>15-page generated disclosure</span>
+    </div>
+    <button class="print" onclick="window.print()">Print / Save as PDF</button>
+  </header>
+
+  <section class="section">
+    <h2>At a glance</h2>
+    <div class="grid">
+      <div class="metric"><div class="label">Reported outstanding debt</div><div class="value">$10,994</div><div class="note">Shown on the active auto loan</div></div>
+      <div class="metric"><div class="label">Active monthly payment</div><div class="value">$379</div><div class="note">Western Fund auto loan</div></div>
+      <div class="metric"><div class="label">Accounts with adverse history</div><div class="value">3</div><div class="note">Westlake, Bank of America, Credit One</div></div>
+      <div class="metric"><div class="label">Reported collections</div><div class="value">0</div><div class="note">None listed in this report</div></div>
+    </div>
+    <div class="callout"><strong>Bottom line:</strong> The main current balance is a $10,994 joint auto loan. The most damaging history is the Bank of America card reaching 120 days late and the Westlake auto loan reaching 90 days late. No current past-due balances, collections, charge-offs, or repossessions are shown in the supplied report.</div>
+  </section>
+
+  <section class="section">
+    <h2>All accounts and debts</h2>
+
+    <article class="card">
+      <div class="card-head"><div><h3>Western Fund — Auto loan</h3><div class="sub">Account ending 0821 • Joint responsibility • Opened May 10, 2026</div></div><span class="tag good">Currently current</span></div>
+      <div class="balance">$10,994</div><div class="sub">Reported outstanding balance</div>
+      <div class="facts">
+        <div class="fact"><div class="k">Monthly payment</div><div class="v">$379</div></div>
+        <div class="fact"><div class="k">High balance</div><div class="v">$12,114</div></div>
+        <div class="fact"><div class="k">Past due</div><div class="v">$0</div></div>
+        <div class="fact"><div class="k">Last payment reported</div><div class="v">Oct 8, 2026</div></div>
+        <div class="fact"><div class="k">Loan term</div><div class="v">42 months</div></div>
+        <div class="fact"><div class="k">Late payments</div><div class="v">None reported</div></div>
+      </div>
+      <div class="callout">This is the largest current obligation. It is reported current, with no 30-, 60-, or 90+-day late payments. Because it is joint, another person is also associated with the loan; this report does not identify that person.</div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><h3>Credit One Bank — Credit card</h3><div class="sub">Account ending 2780 • Individual responsibility • Opened Dec 24, 2025</div></div><span class="tag warn">One 30-day late</span></div>
+      <div class="balance">$0</div><div class="sub">Current reported balance</div>
+      <div class="facts">
+        <div class="fact"><div class="k">Credit limit</div><div class="v">$300</div></div>
+        <div class="fact"><div class="k">High balance</div><div class="v">$330</div></div>
+        <div class="fact"><div class="k">Past due</div><div class="v">$0</div></div>
+        <div class="fact"><div class="k">Last payment reported</div><div class="v">Oct 8, 2026</div></div>
+        <div class="fact"><div class="k">Account status</div><div class="v">Open / current</div></div>
+        <div class="fact"><div class="k">Late payments</div><div class="v">One 30-day late</div></div>
+      </div>
+      <div class="callout">The card reached $330 against a $300 limit. The payment history shows a 30-day late mark in June 2026, followed by current ratings. The balance is now zero and the account remains open.</div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><h3>Bank of America — Closed credit card</h3><div class="sub">Account ending 8880 • Individual responsibility • Opened May 9, 2024</div></div><span class="tag bad">Major negative history</span></div>
+      <div class="balance">$0</div><div class="sub">Current reported balance • Account closed Oct 14, 2025</div>
+      <div class="facts">
+        <div class="fact"><div class="k">Credit limit</div><div class="v">$1,000</div></div>
+        <div class="fact"><div class="k">High balance</div><div class="v">$1,286</div></div>
+        <div class="fact"><div class="k">Past due now</div><div class="v">$0</div></div>
+        <div class="fact"><div class="k">Worst payment status</div><div class="v">120 days late</div></div>
+        <div class="fact"><div class="k">Closure remark</div><div class="v">Canceled by credit grantor</div></div>
+        <div class="fact"><div class="k">Late-payment counts</div><div class="v">2×30d, 1×60d, 3×90+d</div></div>
+      </div>
+      <table class="timeline">
+        <thead><tr><th>Month</th><th>Reported payment status</th></tr></thead>
+        <tbody>
+          <tr><td>March 2025</td><td class="bad">30 days late</td></tr>
+          <tr><td>April–May 2025</td><td>Current</td></tr>
+          <tr><td>June 2025</td><td class="bad">30 days late</td></tr>
+          <tr><td>July 2025</td><td class="bad">60 days late</td></tr>
+          <tr><td>August 2025</td><td class="bad">90 days late</td></tr>
+          <tr><td>September–October 2025</td><td class="bad">120 days late</td></tr>
+          <tr><td>November 2025</td><td>Current</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">This is one of the most serious derogatory items. The account shows repeated delinquencies up to 120 days and a creditor-initiated closure. The reported balance is zero, but the late-payment history remains on the file.</div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><div><h3>Westlake Financial — Previous auto loan</h3><div class="sub">Account ending 6911 • Individual responsibility • Opened July 12, 2024</div></div><span class="tag bad">Negative history</span></div>
+      <div class="balance">$0</div><div class="sub">Current reported balance • Account closed May 28, 2025</div>
+      <div class="facts">
+        <div class="fact"><div class="k">High balance</div><div class="v">$8,726</div></div>
+        <div class="fact"><div class="k">Past due now</div><div class="v">$0</div></div>
+        <div class="fact"><div class="k">Last payment reported</div><div class="v">May 28, 2025</div></div>
+        <div class="fact"><div class="k">Worst payment status</div><div class="v">90 days late</div></div>
+        <div class="fact"><div class="k">Account status</div><div class="v">Closed</div></div>
+        <div class="fact"><div class="k">Late-payment counts</div><div class="v">1×30d, 1×60d, 1×90+d</div></div>
+      </div>
+      <table class="timeline">
+        <thead><tr><th>Month</th><th>Reported payment status</th></tr></thead>
+        <tbody>
+          <tr><td>January 2025</td><td class="bad">30 days late</td></tr>
+          <tr><td>February 2025</td><td>Current</td></tr>
+          <tr><td>March 2025</td><td class="bad">60 days late</td></tr>
+          <tr><td>April 2025</td><td class="bad">90 days late</td></tr>
+          <tr><td>May 28, 2025</td><td>Account closed / last payment date</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">The report says closed with a zero balance and a worst status of 90 days late. It does <strong>not</strong> identify a repossession, voluntary surrender, or charge-off. Do not assume one occurred based on this report alone.</div>
+    </article>
+  </section>
+
+  <section class="section">
+    <h2>Other closed accounts</h2>
+    <div class="card">
+      <h3>Rental agreements</h3>
+      <table>
+        <thead><tr><th>Account</th><th>High balance</th><th>Current balance</th><th>Status</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td>RD/TR/RENEW • ending 2110</td><td>$1,737</td><td>$0</td><td>Closed</td><td>Joint</td></tr>
+          <tr><td>RD/LA/CLOIS • ending 0962</td><td>$3,500</td><td>$0</td><td>Closed</td><td>Joint</td></tr>
+        </tbody>
+      </table>
+      <p class="muted" style="font-size:13px;margin-bottom:0">Both are reported with $0 balances and no late payments shown. They do not add to the current outstanding balance shown above.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Credit inquiries</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Company</th><th>Date requested</th><th>Category shown</th></tr></thead>
+        <tbody>
+          <tr><td>Credit One Bank</td><td>December 18, 2025</td><td>Bank / Type I</td></tr>
+          <tr><td>United Consumer</td><td>November 27, 2024</td><td>Finance / Personal / Type I</td></tr>
+        </tbody>
+      </table>
+      <p class="muted" style="font-size:13px;margin-bottom:0">The report says it does not provide an authoritative hard-inquiry versus account-review classification. Verify the inquiry type before treating either as a hard pull.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>What is not showing</h2>
+    <div class="two">
+      <div class="card">
+        <h3 style="color:var(--green)">Positive findings</h3>
+        <ul class="checklist">
+          <li>No collection accounts listed</li>
+          <li>No charge-offs listed</li>
+          <li>No repossessions listed</li>
+          <li>No currently reported past-due balances</li>
+          <li>No outstanding credit-card balances</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Important limitations</h3>
+        <ul>
+          <li>This is TransUnion data only.</li>
+          <li>The report does not include a credit score.</li>
+          <li>Other bureaus may show different information.</li>
+          <li>A $0 reported balance does not prove no separate deficiency or unreported debt exists.</li>
+          <li>This is a generated rendering, not an original TransUnion-issued PDF.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Recommended next steps</h2>
+    <div class="card">
+      <ol>
+        <li><strong>Protect the current payment history.</strong> Keep the Western Fund loan and Credit One card current. Consider autopay for at least the minimum due.</li>
+        <li><strong>Review the Bank of America history.</strong> Check whether the 30-, 60-, 90-, and 120-day late marks are accurate. Dispute only information that is genuinely inaccurate or incomplete.</li>
+        <li><strong>Confirm the Westlake closure.</strong> Request a final account statement or closure confirmation and verify whether any balance remains outside this report.</li>
+        <li><strong>Keep Credit One utilization low.</strong> Its $300 limit is small, so even a modest balance can create high utilization.</li>
+        <li><strong>Compare all three bureaus.</strong> Review Experian and Equifax for differences, missing accounts, or inaccurate reporting.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <strong>Source and scope:</strong> Summary based on the supplied 15-page TransUnion-data disclosure dated November 21, 2026. The source document states it is a nul.cx-generated rendering and not an original TransUnion-issued PDF. This is an informational summary, not a credit score, legal opinion, or guarantee of how a lender will evaluate the file. Verify account details directly with the furnishers and bureau before taking action.
+  </footer>
+</div>
+</body>
+</html>
